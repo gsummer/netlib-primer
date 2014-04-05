@@ -33,9 +33,10 @@ public class App
 		try {
 			CommandLine line = parser.parse( options, args );
 
-			if(line.hasOption("help")){
+			if(line.hasOption("help") || args.length == 0){
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp( "netlibprimer [OPTIONS] [FILES]", options );
+				return;
 			}
 
 			String db = null;

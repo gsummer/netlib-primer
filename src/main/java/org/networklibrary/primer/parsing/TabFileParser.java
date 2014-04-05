@@ -45,5 +45,10 @@ public class TabFileParser implements Parser<IdData> {
 		
 	}
 
+	@Override
+	public boolean hasHeader() {
+		return true;
+	}
+
 	
 }

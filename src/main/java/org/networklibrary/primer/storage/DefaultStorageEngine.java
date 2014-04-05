@@ -10,6 +10,7 @@ import java.util.Set;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.Index;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.networklibrary.core.storage.StorageEngine;
 import org.networklibrary.core.types.IdData;
@@ -21,9 +22,12 @@ public class DefaultStorageEngine implements StorageEngine<IdData> {
 	private GraphDatabaseService graph = null;
 
 	private Map<String,Node> nodeCache = new HashMap<String,Node>();
+	
+	private Index<Node> matchableIndex = null;
 
 	public DefaultStorageEngine(String db) {
 		graph = new RestGraphDatabase(db);
+		matchableIndex = graph.index().forNodes("matchable");
 	}
 
 	@Override
@@ -35,9 +39,11 @@ public class DefaultStorageEngine implements StorageEngine<IdData> {
 				currNode = graph.createNode();
 				addProperty(currNode, MATCH, curr.getMatchID());
 				nodeCache.put(curr.getMatchID(), currNode);
+				matchableIndex.add(currNode, MATCH, curr.getMatchID());
 			}
 
 			addProperty(currNode,MATCH,curr.getValue());
+			matchableIndex.add(currNode, MATCH, curr.getValue());
 			addProperty(currNode,curr.getPropertyName(),curr.getValue());
 			tx.success();
 		}
