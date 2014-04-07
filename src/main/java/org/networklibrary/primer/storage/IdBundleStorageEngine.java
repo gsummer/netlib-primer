@@ -1,7 +1,6 @@
 package org.networklibrary.primer.storage;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,41 +8,31 @@ import java.util.Set;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
-import org.neo4j.rest.graphdb.RestGraphDatabase;
-import org.networklibrary.core.storage.StorageEngine;
+import org.networklibrary.core.config.ConfigManager;
+import org.networklibrary.core.storage.MultiTxStrategy;
 import org.networklibrary.core.types.IdData;
 
-public class TxStorageEngine implements StorageEngine<IdData> {
+public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 
-	private final static String MATCH = "matchid";
-
-	private GraphDatabaseService graph = null;
-
+private final static String MATCH = "matchid";
+	
 	private Map<String,Node> nodeCache = new HashMap<String,Node>();
 	
 	private Index<Node> matchableIndex = null;
 
-	private Transaction currTx = null;
-	private long currOp = 0;
-
-	private long maxOps = 0;
-
-	public TxStorageEngine(String db) {
-		graph = new RestGraphDatabase(db);
+	
+	public IdBundleStorageEngine(GraphDatabaseService graph,
+			ConfigManager confMgr) {
+		super(graph, confMgr);
 		matchableIndex = graph.index().forNodes("matchable");
-		
-		maxOps = 250;
 	}
 
 	@Override
-	public void store(IdData curr) {
-
-		checkTx();
+	protected void doStore(IdData curr) {
 		Node currNode = nodeCache.get(curr.getMatchID());
 		if(currNode == null){
-			currNode = graph.createNode();
+			currNode = getGraph().createNode();
 			addProperty(currNode, MATCH, curr.getMatchID());
 			nodeCache.put(curr.getMatchID(), currNode);
 			matchableIndex.add(currNode, MATCH, curr.getMatchID());
@@ -52,40 +41,9 @@ public class TxStorageEngine implements StorageEngine<IdData> {
 		addProperty(currNode,MATCH,curr.getValue());
 		matchableIndex.add(currNode, MATCH, curr.getValue());
 		addProperty(currNode,curr.getPropertyName(),curr.getValue());
-	}
-
-	@Override
-	public void finishUp() {
 		
-		if(currTx != null){
-			currTx.success();
-			currTx.close();
-		}
-
 	}
-
-	@Override
-	public void storeAll(Collection<IdData> bundles) {
-		for(IdData b : bundles){
-			store(b);
-		}
-	}
-
-	protected void checkTx() {
-		currOp = currOp + 1;
-		if(currTx == null){
-			currTx = graph.beginTx();
-			currOp = 0;
-		}
-
-		if(currOp == maxOps){
-			currTx.success();
-			currTx.close();
-			currOp = 0;
-			currTx = null;
-		}
-	}
-
+	
 	private void addProperty(Node currNode, String propertyName, String value) {
 
 		if(currNode.hasProperty(propertyName)){

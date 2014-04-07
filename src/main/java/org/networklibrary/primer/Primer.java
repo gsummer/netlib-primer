@@ -5,25 +5,31 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.rest.graphdb.RestGraphDatabase;
+import org.networklibrary.core.config.ConfigManager;
 import org.networklibrary.core.parsing.Parser;
 import org.networklibrary.core.storage.StorageEngine;
 import org.networklibrary.primer.parsing.TabFileParser;
-import org.networklibrary.primer.storage.TxStorageEngine;
+import org.networklibrary.primer.storage.IdBundleStorageEngine;
 
 public class Primer {
 
 	private String db;
 	private List<String> inputFiles;
+	private ConfigManager confMgr;
 	
-	public Primer(String db, List<String> inputFiles) {
+	public Primer(String db, ConfigManager confMgr, List<String> inputFiles) {
 		setDb(db);
+		this.confMgr = confMgr;
 		this.inputFiles = inputFiles;
 	}
 
 	public void prime() throws IOException {
 
-//		StorageEngine se = new DefaultStorageEngine(getDb());
-		StorageEngine se = new TxStorageEngine(db);
+		GraphDatabaseService g = new RestGraphDatabase(db);
+
+		StorageEngine se = new IdBundleStorageEngine(g,confMgr);
 		
 		System.out.println("connecting to db: " + getDb());
 		

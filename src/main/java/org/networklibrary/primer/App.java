@@ -11,6 +11,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.networklibrary.core.config.ConfigManager;
 
 /**
  * Hello world!
@@ -24,10 +25,12 @@ public class App
 		Options options = new Options();
 		Option help = OptionBuilder.withDescription("Help message").create("help");
 		Option dbop = OptionBuilder.withArgName("[URL]").hasArg().withDescription("Neo4j instance to prime").withLongOpt("target").withType(String.class).create("db");
-		//    	Option type = OptionBuilder...
+		Option configOp = OptionBuilder.hasArg().withDescription("Alternative config file").withLongOpt("config").withType(String.class).create("c");
+    	
 
 		options.addOption(help);
 		options.addOption(dbop);
+		options.addOption(configOp);
 
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -43,10 +46,23 @@ public class App
 			if(line.hasOption("db")){
 				db = line.getOptionValue("db");
 			}
+			
+			String config = null;
+            if(line.hasOption("c")){
+            	config = line.getOptionValue("c");
+            }
 
 			List<String> inputFiles = line.getArgList();
 
-			Primer p = new Primer(db,inputFiles);
+			ConfigManager confMgr = null;
+            if(config != null){
+            	confMgr = new ConfigManager(config);
+            }
+            else {
+            	confMgr = new ConfigManager();
+            }
+			
+			Primer p = new Primer(db,confMgr,inputFiles);
 
 			try {
 				p.prime();
