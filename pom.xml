@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.networklibrary</groupId>
-  <artifactId>netlib-primer</artifactId>
-  <version>0.1</version>
-  <packaging>jar</packaging>
+	<groupId>org.networklibrary</groupId>
+	<artifactId>netlib-primer</artifactId>
+	<version>0.1</version>
+	<packaging>jar</packaging>
 
-  <name>netlib-primer</name>
+	<name>netlib-primer</name>
 
 
-  <properties>
+	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -38,17 +38,25 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
 	<dependencies>
-	
+
 		<dependency>
 			<groupId>org.networklibrary</groupId>
 			<artifactId>netlib-core</artifactId>
-			<version>0.1</version>
+			<version>0.1.1</version>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

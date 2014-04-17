@@ -4,17 +4,19 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.networklibrary.core.config.ConfigManager;
 import org.networklibrary.core.parsing.Parser;
 import org.networklibrary.core.storage.StorageEngine;
+import org.networklibrary.core.types.IdData;
 import org.networklibrary.primer.parsing.TabFileParser;
 import org.networklibrary.primer.storage.IdBundleStorageEngine;
 
 public class Primer {
-
+	protected static final Logger log = Logger.getLogger(Primer.class.getName());
 	private String db;
 	private List<String> inputFiles;
 	private ConfigManager confMgr;
@@ -29,9 +31,9 @@ public class Primer {
 
 		GraphDatabaseService g = new RestGraphDatabase(db);
 
-		StorageEngine se = new IdBundleStorageEngine(g,confMgr);
+		StorageEngine<IdData> se = new IdBundleStorageEngine(g,confMgr);
 		
-		System.out.println("connecting to db: " + getDb());
+		log.info("connecting to db: " + getDb());
 		
 		// files can be handled multithreaded?
 		for(String inputFile : inputFiles){
@@ -47,9 +49,11 @@ public class Primer {
 				se.storeAll(p.parse(line));
 			}
 			
+			reader.close();
+			
 			long end = System.nanoTime();
 			long elapsed = end - start;
-			System.out.println("finished " + inputFile + " in " + (elapsed/1000000000));
+			log.info("finished " + inputFile + " in " + (elapsed/1000000000));
 		}
 		se.finishUp();
 		
