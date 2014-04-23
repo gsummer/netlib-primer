@@ -1,6 +1,7 @@
 package org.networklibrary.primer;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -26,11 +27,12 @@ public class App
 		Option help = OptionBuilder.withDescription("Help message").create("help");
 		Option dbop = OptionBuilder.withArgName("[URL]").hasArg().withDescription("Neo4j instance to prime").withLongOpt("target").withType(String.class).create("db");
 		Option configOp = OptionBuilder.hasArg().withDescription("Alternative config file").withLongOpt("config").withType(String.class).create("c");
-    	
+		Option extraOps = OptionBuilder.hasArgs().withDescription("Extra configuration parameters for the import").withType(String.class).create("x");
 
 		options.addOption(help);
 		options.addOption(dbop);
 		options.addOption(configOp);
+		options.addOption(extraOps);
 
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -51,6 +53,11 @@ public class App
             if(line.hasOption("c")){
             	config = line.getOptionValue("c");
             }
+            
+            List<String> extras = null;
+            if(line.hasOption("x")){
+            	extras = Arrays.asList(line.getOptionValues("x"));
+            }
 
 			List<String> inputFiles = line.getArgList();
 
@@ -62,7 +69,7 @@ public class App
             	confMgr = new ConfigManager();
             }
 			
-			Primer p = new Primer(db,confMgr,inputFiles);
+			Primer p = new Primer(db,confMgr,inputFiles,extras);
 
 			try {
 				p.prime();

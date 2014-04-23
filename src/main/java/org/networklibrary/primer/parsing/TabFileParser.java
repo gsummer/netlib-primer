@@ -5,10 +5,11 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.networklibrary.core.parsing.Parser;
+import org.networklibrary.core.parsing.FileBasedParser;
+import org.networklibrary.core.parsing.ParsingErrorException;
 import org.networklibrary.core.types.IdData;
 
-public class TabFileParser implements Parser<IdData> {
+public class TabFileParser extends FileBasedParser<IdData> {
 
 	private List<String> columns = null;
 	
@@ -16,7 +17,9 @@ public class TabFileParser implements Parser<IdData> {
 	}
 
 	@Override
-	public Collection<IdData> parse(String line) {
+	public Collection<IdData> parse() throws ParsingErrorException {
+		
+		String line = readLine();
 		List<IdData> res = null;
 		
 		if(!line.isEmpty()){
@@ -48,6 +51,15 @@ public class TabFileParser implements Parser<IdData> {
 	@Override
 	public boolean hasHeader() {
 		return true;
+	}
+
+	@Override
+	public boolean hasExtraParameters() {
+		return false;
+	}
+
+	@Override
+	public void takeExtraParameters(List<String> extras) {
 	}
 
 	
