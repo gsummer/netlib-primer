@@ -5,17 +5,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexHits;
 import org.networklibrary.core.config.ConfigManager;
 import org.networklibrary.core.storage.MultiTxStrategy;
 import org.networklibrary.core.types.IdData;
 
 public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 
-private final static String MATCH = "matchid";
+	protected static final Logger log = Logger.getLogger(IdBundleStorageEngine.class.getName());
+	private final static String MATCH = "matchid";
 	
 	private Map<String,Node> nodeCache = new HashMap<String,Node>();
 	
@@ -30,7 +33,8 @@ private final static String MATCH = "matchid";
 
 	@Override
 	protected void doStore(IdData curr) {
-		Node currNode = nodeCache.get(curr.getMatchID());
+		Node currNode = getNode(curr.getMatchID(), getGraph());
+		
 		if(currNode == null){
 			currNode = getGraph().createNode();
 			addProperty(currNode, MATCH, curr.getMatchID());
@@ -61,6 +65,23 @@ private final static String MATCH = "matchid";
 			currNode.setProperty(propertyName, values);
 		}
 
+	}
+	
+	protected Node getNode(String name, GraphDatabaseService g){
+		Node result = nodeCache.get(name);
+
+		if(result == null){
+			IndexHits<Node> hits = g.index().forNodes("matchable").get(MATCH, name);
+
+			if(hits.size() > 1){
+				log.warning("query for name = " + name + " returned more than one hit. Defaulting to first.");
+			}
+
+			result = hits.getSingle();
+			nodeCache.put(name,result);
+		}
+
+		return result;
 	}
 
 }
