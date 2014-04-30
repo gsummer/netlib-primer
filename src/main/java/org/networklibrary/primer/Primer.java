@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.rest.graphdb.RestGraphDatabase;
 import org.networklibrary.core.config.ConfigManager;
 import org.networklibrary.core.parsing.Parser;
@@ -20,19 +21,44 @@ public class Primer {
 	private List<String> inputFiles;
 	private ConfigManager confMgr;
 	private List<String> extras;
+	private boolean index;
+	private boolean array;
+	private boolean noNew;
+	private boolean label;
 
-	public Primer(String db, ConfigManager confMgr, List<String> inputFiles, List<String> extras) {
+	public Primer(String db, ConfigManager confMgr, List<String> inputFiles, List<String> extras, boolean index, boolean array, boolean noNew, boolean label) {
 		setDb(db);
 		this.confMgr = confMgr;
 		this.inputFiles = inputFiles;
 		this.extras = extras;
+		this.index = index;
+		this.array = array;
+		this.noNew = noNew;
+		this.label = label;
+	}
+
+	public boolean isNoNew() {
+		return noNew;
+	}
+
+	public boolean isIndex() {
+		return index;
+	}
+
+	public boolean isArray() {
+		return array;
+	}
+
+	public boolean isLabel() {
+		return label;
 	}
 
 	public void prime() throws IOException {
 
-		GraphDatabaseService g = new RestGraphDatabase(db);
+//		GraphDatabaseService g = new RestGraphDatabase(db);
+		GraphDatabaseService g = new GraphDatabaseFactory().newEmbeddedDatabase(db);
 
-		StorageEngine<IdData> se = new IdBundleStorageEngine(g,confMgr);
+		StorageEngine<IdData> se = new IdBundleStorageEngine(g,confMgr,isIndex(),isArray(),isNoNew(),isLabel());
 
 		log.info("connecting to db: " + getDb());
 

@@ -27,11 +27,7 @@ public class TabFileParser extends FileBasedParser<IdData> {
 			
 			String[] values =line.split("\\t",-1);
 			
-			if(values.length != columns.size()){
-				throw new IllegalArgumentException("number of elements in row does not match number of columns " + line);
-			}
-			
-			for(int i = 0; i < values.length; ++i){
+			for(int i = 1; i < values.length; ++i){
 				if(!values[i].isEmpty()){
 					res.add(new IdData(values[0],columns.get(i),values[i]));
 				}
