@@ -101,7 +101,7 @@ public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 		Node result = nodeCache.get(name);
 
 		if(result == null){
-			IndexHits<Node> hits = g.index().forNodes("matchable").get(MATCH, name);
+			IndexHits<Node> hits = matchableIndex.get(MATCH, name);
 
 			if(hits.size() > 1){
 				log.warning("query for name = " + name + " returned more than one hit. Defaulting to first.");
