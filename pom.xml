@@ -89,19 +89,11 @@
 			<version>1.9</version>
 		</dependency>
 
-<<<<<<< HEAD
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.neo4j</groupId> -->
 <!-- 			<artifactId>neo4j-rest-graphdb</artifactId> -->
 <!-- 			<version>2.0.2-SNAPSHOT</version> -->
 <!-- 		</dependency> -->
-=======
-		<!-- <dependency>
-			<groupId>org.neo4j</groupId>
-			<artifactId>neo4j-rest-graphdb</artifactId>
-			<version>2.0.2-SNAPSHOT</version>
-		</dependency> -->
->>>>>>> f0ce6b0f87e6785e6b36a1a2826a145180866fed
 
 		<dependency>
 			<groupId>org.neo4j</groupId>
