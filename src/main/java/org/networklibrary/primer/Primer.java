@@ -84,7 +84,7 @@ public class Primer {
 			}
 		}
 		se.finishUp();
-
+		g.shutdown();
 	}
 
 	protected String getDb() {
