@@ -26,6 +26,7 @@ public class App
 		Options options = new Options();
 		Option help = OptionBuilder.withDescription("Help message").create("help");
 		Option dbop = OptionBuilder.withArgName("[URL]").hasArg().withDescription("Neo4j instance to prime").withLongOpt("target").withType(String.class).create("db");
+		Option typeop = OptionBuilder.withArgName("[TYPE]").hasArg().withDescription("Types available:").withType(String.class).create("t");
 		Option configOp = OptionBuilder.hasArg().withDescription("Alternative config file").withLongOpt("config").withType(String.class).create("c");
 		Option extraOps = OptionBuilder.hasArgs().withDescription("Extra configuration parameters for the import").withType(String.class).create("x");
 
@@ -37,6 +38,7 @@ public class App
 
 		options.addOption(help);
 		options.addOption(dbop);
+		options.addOption(typeop);
 		options.addOption(configOp);
 		options.addOption(extraOps);
 
@@ -70,6 +72,11 @@ public class App
 			if(line.hasOption("x")){
 				extras = Arrays.asList(line.getOptionValues("x"));
 			}
+			
+			String type = null;
+			if(line.hasOption("t")){
+				type = line.getOptionValue("t");
+			}
 
 			boolean label = line.hasOption("label");
 			boolean index = !line.hasOption("no_index");
@@ -87,7 +94,7 @@ public class App
 				confMgr = new ConfigManager();
 			}
 
-			Primer p = new Primer(db,confMgr,inputFiles,extras,index,array,noNew,label);
+			Primer p = new Primer(db,confMgr,type,inputFiles,extras,index,array,noNew,label);
 
 			try {
 				p.prime();

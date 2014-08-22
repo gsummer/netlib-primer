@@ -1,7 +1,10 @@
 package org.networklibrary.primer;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -11,12 +14,27 @@ import org.networklibrary.core.parsing.Parser;
 import org.networklibrary.core.parsing.ParsingErrorException;
 import org.networklibrary.core.storage.StorageEngine;
 import org.networklibrary.core.types.IdData;
+import org.networklibrary.primer.parsing.DisgenetDiseaseParser;
 import org.networklibrary.primer.parsing.TabFileParser;
 import org.networklibrary.primer.storage.IdBundleStorageEngine;
 
 public class Primer {
 	protected static final Logger log = Logger.getLogger(Primer.class.getName());
+	
+	private static Map<String,Class> parsers = new HashMap<String,Class>();
+	private static Map<String,String> supported = new HashMap<String,String>();
+	static {
+		addParser("TAB","Tab file (default)",TabFileParser.class);
+		addParser("DGND","Disgenet Disease parser",DisgenetDiseaseParser.class);
+	}
+
+	private static void addParser(String cmd, String name, Class parser){
+		parsers.put(cmd,parser);
+		supported.put(cmd, name);
+	}
+	
 	private String db;
+	private String type;
 	private List<String> inputFiles;
 	private ConfigManager confMgr;
 	private List<String> extras;
@@ -24,16 +42,22 @@ public class Primer {
 	private boolean array;
 	private boolean noNew;
 	private boolean label;
+	
 
-	public Primer(String db, ConfigManager confMgr, List<String> inputFiles, List<String> extras, boolean index, boolean array, boolean noNew, boolean label) {
+	public Primer(String db, ConfigManager confMgr, String type, List<String> inputFiles, List<String> extras, boolean index, boolean array, boolean noNew, boolean label) {
 		setDb(db);
 		this.confMgr = confMgr;
+		this.type = type;
 		this.inputFiles = inputFiles;
 		this.extras = extras;
 		this.index = index;
 		this.array = array;
 		this.noNew = noNew;
 		this.label = label;
+		
+		if(this.type == null || this.type.isEmpty()){
+			this.type = "TAB";
+		}
 	}
 
 	public boolean isNoNew() {
@@ -65,7 +89,8 @@ public class Primer {
 		for(String inputFile : inputFiles){
 			long start = System.nanoTime();
 			try {
-				Parser<IdData> p = new TabFileParser();
+//				Parser<IdData> p = new TabFileParser();
+				Parser<IdData> p = makeParser();
 
 				if(p.hasExtraParameters())
 					p.takeExtraParameters(extras);
@@ -96,12 +121,45 @@ public class Primer {
 	}
 
 	protected void setDb(String db) {
-		// TODO validate url
 		this.db = db;
 	}
 
 	protected void setInputFiles(List<String> inputFiles) {
 		this.inputFiles = inputFiles;
+	}
+	
+	protected String getType(){
+		return type;
+	}
+	
+	protected Parser<IdData> makeParser(){
+		Parser<IdData> p = null;
+
+		try {
+			log.info("Have type = " + getType() + " -> parser = " + parsers.get(getType()));		
+			p = (Parser<IdData>)getParsers().get(getType()).newInstance();
+		} catch (InstantiationException e) {
+			log.severe("InstantiationException when creating parser for: " + getType() + ": " + e.getMessage());
+		} catch (IllegalAccessException e) {
+			log.severe("IllegalAccessException when creating parser for: " + getType() + ": " + e.getMessage());
+		}
+
+		return p;
+	}
+	
+	public static String printSupportedTypes() {
+		StringBuilder buff = new StringBuilder();
+
+		for(Entry<String,Class> p : parsers.entrySet() ){
+			buff.append("\t" + p.getKey() + " = " + supported.get(p.getKey()));
+			buff.append("\n");
+		}
+
+		return buff.toString();
+	}
+	
+	protected Map<String,Class> getParsers(){
+		return parsers;
 	}
 
 }
