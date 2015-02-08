@@ -22,17 +22,18 @@ public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 	protected static final Logger log = Logger.getLogger(IdBundleStorageEngine.class.getName());
 	private final static String MATCH = "matchid";
 
-	private Map<String,Node> nodeCache = new HashMap<String,Node>();
+	private Map<String,Set<Node>> nodeCache = new HashMap<String,Set<Node>>();
 
 	private Index<Node> matchableIndex = null;
 	private boolean index;
 	private boolean array;
 	private boolean noNew;
 	private boolean label;
+	private boolean allowMulti;
 
 
 	public IdBundleStorageEngine(GraphDatabaseService graph,
-			ConfigManager confMgr, boolean index, boolean array, boolean noNew, boolean label) {
+			ConfigManager confMgr, boolean index, boolean array, boolean noNew, boolean label,boolean allowMulti) {
 		super(graph, confMgr);
 		try ( Transaction tx = graph.beginTx() ){
 			matchableIndex = graph.index().forNodes("matchable");
@@ -43,28 +44,37 @@ public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 		this.array = array;
 		this.noNew = noNew;
 		this.label = label;
+		this.allowMulti = allowMulti;
 	}
 
 	@Override
 	protected void doStore(IdData curr) {
-		Node currNode = getNode(curr.getMatchID(), getGraph());
+		Set<Node> currNodes = getNode(curr.getMatchID(), getGraph());
 
-		if(!noNew && currNode == null){
-			currNode = getGraph().createNode();
-			//			addProperty(currNode, MATCH, curr.getMatchID());
-			nodeCache.put(curr.getMatchID(), currNode);
-			matchableIndex.add(currNode, MATCH, curr.getMatchID());
-		}
+		for(Node currNode : currNodes){
+			if(!noNew && currNode == null){
 
-		if(currNode != null){
-			if(label){
-				currNode.addLabel(DynamicLabel.label(curr.getValue()));
-			} 
+				currNode = getGraph().createNode();
+				//			addProperty(currNode, MATCH, curr.getMatchID());
+				
+				if(!nodeCache.containsKey(curr.getMatchID())){
+					nodeCache.put(curr.getMatchID(), new HashSet<Node>());
+				}
+				nodeCache.get(curr.getMatchID()).add(currNode);
+				
+				matchableIndex.add(currNode, MATCH, curr.getMatchID());
+			}
 
-			//		addProperty(currNode,MATCH,curr.getValue());
-			addProperty(currNode,curr.getPropertyName(),curr.getValue());
-			if(index){
-				matchableIndex.add(currNode, MATCH, curr.getValue());
+			if(currNode != null){
+				if(label){
+					currNode.addLabel(DynamicLabel.label(curr.getValue()));
+				} 
+
+				//		addProperty(currNode,MATCH,curr.getValue());
+				addProperty(currNode,curr.getPropertyName(),curr.getValue());
+				if(index){
+					matchableIndex.add(currNode, MATCH, curr.getValue());
+				}
 			}
 		}
 
@@ -97,17 +107,21 @@ public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 		}
 	}
 
-	protected Node getNode(String name, GraphDatabaseService g){
-		Node result = nodeCache.get(name);
+	protected Set<Node> getNode(String name, GraphDatabaseService g){
+		Set<Node> result = nodeCache.get(name);
 
 		if(result == null){
 			IndexHits<Node> hits = matchableIndex.get(MATCH, name);
 
-			if(hits.size() > 1){
-				log.warning("query for name = " + name + " returned more than one hit. Defaulting to first.");
+			if(hits.size() > 1 && !allowMulti){
+				log.warning("query for name = " + name + " returned more than one hit. Ignoring.");
+				return null;
 			}
 
-			result = hits.getSingle();
+			result = new HashSet<Node>();
+			while(hits.hasNext()){
+				result.add(hits.next());
+			}
 			nodeCache.put(name,result);
 		}
 
