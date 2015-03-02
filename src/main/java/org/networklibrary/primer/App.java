@@ -35,6 +35,7 @@ public class App
 		Option labelOps = new Option("label",false,"provided values are used as labels for the node");
 		Option nopropOps = new Option("no_prop",false,"values are not saved as properties (but as labels if <label> flag is set)");
 		Option nonewOps = new Option("no_new_nodes",false,"unknown primary ids will NOT create new nodes");
+		Option allowMultiOps = new Option("allow_multi",false, "allow for multiple nodes to be returned on searching");
 
 		options.addOption(help);
 		options.addOption(dbop);
@@ -47,6 +48,7 @@ public class App
 		options.addOption(labelOps);
 		options.addOption(nopropOps);
 		options.addOption(nonewOps);
+		options.addOption(allowMultiOps);
 
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -83,13 +85,14 @@ public class App
 			boolean array = !line.hasOption("no_array");
 			boolean prop = !line.hasOption("no_prop");
 			boolean noNew = line.hasOption("no_new_nodes");
+			boolean allowMulti = line.hasOption("allow_multi");
 
 			List<String> inputFiles = line.getArgList();
 
 			ConfigManager confMgr = new ConfigManager(config);
 			
 
-			Primer p = new Primer(db,confMgr,type,inputFiles,extras,index,array,noNew,label);
+			Primer p = new Primer(db,confMgr,type,inputFiles,extras,index,array,noNew,label,allowMulti);
 
 			try {
 				p.prime();

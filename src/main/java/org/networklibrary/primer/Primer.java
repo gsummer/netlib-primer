@@ -42,9 +42,10 @@ public class Primer {
 	private boolean array;
 	private boolean noNew;
 	private boolean label;
+	private boolean allowMulti;
 	
 
-	public Primer(String db, ConfigManager confMgr, String type, List<String> inputFiles, List<String> extras, boolean index, boolean array, boolean noNew, boolean label) {
+	public Primer(String db, ConfigManager confMgr, String type, List<String> inputFiles, List<String> extras, boolean index, boolean array, boolean noNew, boolean label,boolean allowMulti) {
 		setDb(db);
 		this.confMgr = confMgr;
 		this.type = type;
@@ -54,6 +55,7 @@ public class Primer {
 		this.array = array;
 		this.noNew = noNew;
 		this.label = label;
+		this.allowMulti = allowMulti;
 		
 		if(this.type == null || this.type.isEmpty()){
 			this.type = "TAB";
@@ -75,13 +77,17 @@ public class Primer {
 	public boolean isLabel() {
 		return label;
 	}
+	
+	public boolean isAllowMulti(){
+		return allowMulti;
+	}
 
 	public void prime() throws IOException {
 
 //		GraphDatabaseService g = new RestGraphDatabase(db);
 		GraphDatabaseService g = new GraphDatabaseFactory().newEmbeddedDatabase(db);
 
-		StorageEngine<IdData> se = new IdBundleStorageEngine(g,confMgr,isIndex(),isArray(),isNoNew(),isLabel());
+		StorageEngine<IdData> se = new IdBundleStorageEngine(g,confMgr,isIndex(),isArray(),isNoNew(),isLabel(),isAllowMulti());
 
 		log.info("connecting to db: " + getDb());
 
