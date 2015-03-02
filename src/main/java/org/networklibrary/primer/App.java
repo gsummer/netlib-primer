@@ -86,13 +86,8 @@ public class App
 
 			List<String> inputFiles = line.getArgList();
 
-			ConfigManager confMgr = null;
-			if(config != null){
-				confMgr = new ConfigManager(config);
-			}
-			else {
-				confMgr = new ConfigManager();
-			}
+			ConfigManager confMgr = new ConfigManager(config);
+			
 
 			Primer p = new Primer(db,confMgr,type,inputFiles,extras,index,array,noNew,label);
 
