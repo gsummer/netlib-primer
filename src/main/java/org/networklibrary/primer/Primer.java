@@ -9,11 +9,11 @@ import java.util.logging.Logger;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.networklibrary.core.config.ConfigManager;
 import org.networklibrary.core.parsing.Parser;
 import org.networklibrary.core.parsing.ParsingErrorException;
 import org.networklibrary.core.storage.StorageEngine;
 import org.networklibrary.core.types.IdData;
+import org.networklibrary.primer.config.PrimerConfigManager;
 import org.networklibrary.primer.parsing.DisgenetDiseaseParser;
 import org.networklibrary.primer.parsing.TabFileParser;
 import org.networklibrary.primer.storage.IdBundleStorageEngine;
@@ -34,60 +34,23 @@ public class Primer {
 	}
 	
 	private String db;
-	private String type;
 	private List<String> inputFiles;
-	private ConfigManager confMgr;
+	private PrimerConfigManager confMgr;
 	private List<String> extras;
-	private boolean index;
-	private boolean array;
-	private boolean noNew;
-	private boolean label;
-	private boolean allowMulti;
 	
-
-	public Primer(String db, ConfigManager confMgr, String type, List<String> inputFiles, List<String> extras, boolean index, boolean array, boolean noNew, boolean label,boolean allowMulti) {
+	
+	public Primer(String db, PrimerConfigManager confMgr, List<String> inputFiles, List<String> extras){
 		setDb(db);
 		this.confMgr = confMgr;
-		this.type = type;
 		this.inputFiles = inputFiles;
 		this.extras = extras;
-		this.index = index;
-		this.array = array;
-		this.noNew = noNew;
-		this.label = label;
-		this.allowMulti = allowMulti;
-		
-		if(this.type == null || this.type.isEmpty()){
-			this.type = "TAB";
-		}
-	}
-
-	public boolean isNoNew() {
-		return noNew;
-	}
-
-	public boolean isIndex() {
-		return index;
-	}
-
-	public boolean isArray() {
-		return array;
-	}
-
-	public boolean isLabel() {
-		return label;
-	}
-	
-	public boolean isAllowMulti(){
-		return allowMulti;
 	}
 
 	public void prime() throws IOException {
 
-//		GraphDatabaseService g = new RestGraphDatabase(db);
 		GraphDatabaseService g = new GraphDatabaseFactory().newEmbeddedDatabase(db);
 
-		StorageEngine<IdData> se = new IdBundleStorageEngine(g,confMgr,isIndex(),isArray(),isNoNew(),isLabel(),isAllowMulti());
+		StorageEngine<IdData> se = new IdBundleStorageEngine(g,confMgr);
 
 		log.info("connecting to db: " + getDb());
 
@@ -95,7 +58,6 @@ public class Primer {
 		for(String inputFile : inputFiles){
 			long start = System.nanoTime();
 			try {
-//				Parser<IdData> p = new TabFileParser();
 				Parser<IdData> p = makeParser();
 
 				if(p.hasExtraParameters())
@@ -135,7 +97,7 @@ public class Primer {
 	}
 	
 	protected String getType(){
-		return type;
+		return confMgr.getType();
 	}
 	
 	protected Parser<IdData> makeParser(){

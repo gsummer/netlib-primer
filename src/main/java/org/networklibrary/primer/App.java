@@ -3,6 +3,7 @@ package org.networklibrary.primer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -13,6 +14,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.networklibrary.core.config.ConfigManager;
+import org.networklibrary.primer.config.PrimerConfigManager;
 
 /**
  * Hello world!
@@ -20,6 +22,8 @@ import org.networklibrary.core.config.ConfigManager;
  */
 public class App 
 {
+	protected static final Logger log = Logger.getLogger(App.class.getName());
+	
 	public static void main( String[] args )
 	{
 
@@ -77,9 +81,9 @@ public class App
 			
 			String type = null;
 			if(line.hasOption("t")){
-				type = line.getOptionValue("t");
+				type = line.getOptionValue("t","TAB");
 			}
-
+			
 			boolean label = line.hasOption("label");
 			boolean index = !line.hasOption("no_index");
 			boolean array = !line.hasOption("no_array");
@@ -89,10 +93,17 @@ public class App
 
 			List<String> inputFiles = line.getArgList();
 
-			ConfigManager confMgr = new ConfigManager(config);
+			PrimerConfigManager confMgr = null;
 			
+			if(config != null && !config.isEmpty()){
+				log.info("user-supplied config file available: ignoring config command line arguments");
+				confMgr = new PrimerConfigManager(config);
+			} else {
+				confMgr = new PrimerConfigManager(type,label,index,array,prop,noNew,allowMulti);
 
-			Primer p = new Primer(db,confMgr,type,inputFiles,extras,index,array,noNew,label,allowMulti);
+			}
+			
+			Primer p = new Primer(db,confMgr,inputFiles,extras);
 
 			try {
 				p.prime();

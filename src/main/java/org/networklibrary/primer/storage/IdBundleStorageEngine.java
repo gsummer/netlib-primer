@@ -14,77 +14,62 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.networklibrary.core.config.ConfigManager;
+import org.networklibrary.core.config.Indexing;
 import org.networklibrary.core.storage.MultiTxStrategy;
 import org.networklibrary.core.types.IdData;
+import org.networklibrary.primer.config.PrimerConfigManager;
 
 public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 
 	protected static final Logger log = Logger.getLogger(IdBundleStorageEngine.class.getName());
-	private final static String MATCH = "matchid";
 
 	private Map<String,Set<Node>> nodeCache = new HashMap<String,Set<Node>>();
 
 	private Index<Node> matchableIndex = null;
-	private boolean index;
-	private boolean array;
-	private boolean noNew;
-	private boolean label;
-	private boolean allowMulti;
-
-
+	
 	public IdBundleStorageEngine(GraphDatabaseService graph,
-			ConfigManager confMgr, boolean index, boolean array, boolean noNew, boolean label,boolean allowMulti) {
+			ConfigManager confMgr) {
 		super(graph, confMgr);
 		try ( Transaction tx = graph.beginTx() ){
-			matchableIndex = graph.index().forNodes("matchable");
+			matchableIndex = graph.index().forNodes(getIndexing().getPrimaryIndex());
 			tx.success();
 		}
-
-		this.index = index;
-		this.array = array;
-		this.noNew = noNew;
-		this.label = label;
-		this.allowMulti = allowMulti;
 	}
 
 	@Override
 	protected void doStore(IdData curr) {
 		Set<Node> currNodes = getNode(curr.getMatchID(), getGraph());
 
-		for(Node currNode : currNodes){
-			if(!noNew && currNode == null){
-
-				currNode = getGraph().createNode();
-				//			addProperty(currNode, MATCH, curr.getMatchID());
-				
-				if(!nodeCache.containsKey(curr.getMatchID())){
-					nodeCache.put(curr.getMatchID(), new HashSet<Node>());
-				}
-				nodeCache.get(curr.getMatchID()).add(currNode);
-				
-				matchableIndex.add(currNode, MATCH, curr.getMatchID());
+		if(currNodes.isEmpty() && getConfig().newNodes()){
+			Node currNode = getGraph().createNode();
+			currNodes.add(currNode);
+			
+			if(!nodeCache.containsKey(curr.getMatchID())){
+				nodeCache.put(curr.getMatchID(), new HashSet<Node>());
 			}
-
+			nodeCache.get(curr.getMatchID()).add(currNode);
+			
+			matchableIndex.add(currNode, getIndexing().getPrimaryKey(), curr.getMatchID());
+		}
+		
+		for(Node currNode : currNodes){
 			if(currNode != null){
-				if(label){
+				if(getConfig().isLabel()){
 					currNode.addLabel(DynamicLabel.label(curr.getValue()));
 				} 
 
-				//		addProperty(currNode,MATCH,curr.getValue());
 				addProperty(currNode,curr.getPropertyName(),curr.getValue());
-				if(index){
-					matchableIndex.add(currNode, MATCH, curr.getValue());
+				if(getConfig().doIndex()){
+					matchableIndex.add(currNode, getIndexing().getPrimaryKey(), curr.getValue());
 				}
 			}
 		}
-
-
 	}
 
 	private void addProperty(Node currNode, String propertyName, String value) {
 
 		if(currNode.hasProperty(propertyName)){
-			if(array){
+			if(getConfig().doArrays()){
 				Set<String> values = new HashSet<String>();
 				Object prop = currNode.getProperty(propertyName);
 				if(prop instanceof String){
@@ -111,9 +96,9 @@ public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 		Set<Node> result = nodeCache.get(name);
 
 		if(result == null){
-			IndexHits<Node> hits = matchableIndex.get(MATCH, name);
+			IndexHits<Node> hits = matchableIndex.get(getIndexing().getPrimaryKey(), name);
 
-			if(hits.size() > 1 && !allowMulti){
+			if(hits.size() > 1 && !getConfig().allowMultiNodes()){
 				log.warning("query for name = " + name + " returned more than one hit. Ignoring.");
 				return null;
 			}
@@ -128,4 +113,12 @@ public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 		return result;
 	}
 
+	protected PrimerConfigManager getConfig(){
+		return (PrimerConfigManager)getConfMgr();
+	}
+	
+	protected Indexing getIndexing(){
+		return (Indexing)getConfMgr();
+	}
+	
 }
