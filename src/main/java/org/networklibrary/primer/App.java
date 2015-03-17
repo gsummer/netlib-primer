@@ -79,7 +79,7 @@ public class App
 				extras = Arrays.asList(line.getOptionValues("x"));
 			}
 			
-			String type = null;
+			String type = "TAB";
 			if(line.hasOption("t")){
 				type = line.getOptionValue("t","TAB");
 			}
