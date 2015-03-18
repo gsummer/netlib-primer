@@ -1,26 +1,24 @@
 package org.networklibrary.primer.config;
 
+import java.util.Iterator;
+
 import org.networklibrary.core.config.ConfigManager;
 
 public class PrimerConfigManager extends ConfigManager implements
 		PrimerSettings {
-
-	public PrimerConfigManager(String runConfig) {
-		super(runConfig);
-	}
 	
-	public PrimerConfigManager(String type, boolean label, boolean index, boolean array,
-			boolean prop, boolean noNew, boolean allowMulti) {
+	public PrimerConfigManager(String runConfig, String type, boolean label, boolean index, boolean array,
+			boolean prop, boolean newNodes, boolean allowMulti) {
 		
 		setType(type);
 		setIsLabel(label);
 		setDoIndex(index);
 		setDoArrays(array);
 		setIsProperty(prop);
-		setNoNewNodes(noNew);
+		setNewNodes(newNodes);
 		setAllowMulti(allowMulti);
 		
-		load(null); // loads the default config.
+		load(runConfig); // loads the default config.
 	}
 
 	protected void setAllowMulti(boolean allowMulti) {
@@ -42,8 +40,8 @@ public class PrimerConfigManager extends ConfigManager implements
 		getConfig().addProperty("is_label",isLabel);
 	}
 	
-	protected void setNoNewNodes(boolean NewNodes){
-		getConfig().addProperty("new_nodes", NewNodes);
+	protected void setNewNodes(boolean newNodes){
+		getConfig().addProperty("new_nodes", newNodes);
 	}
 	
 	protected void setType(String type){
@@ -81,6 +79,16 @@ public class PrimerConfigManager extends ConfigManager implements
 	@Override
 	public String getType() {
 		return getConfig().getString("type");
+	}
+	
+	public void dumpConfig(){
+		
+		Iterator<String> it = getConfig().getKeys();
+		
+		while(it.hasNext()){
+			String key = it.next();
+			System.out.println(key + " = " + getConfig().getProperty(key).toString());
+		}
 	}
 
 }

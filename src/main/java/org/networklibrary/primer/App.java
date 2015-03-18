@@ -79,7 +79,7 @@ public class App
 				extras = Arrays.asList(line.getOptionValues("x"));
 			}
 			
-			String type = null;
+			String type = "TAB";
 			if(line.hasOption("t")){
 				type = line.getOptionValue("t","TAB");
 			}
@@ -88,21 +88,17 @@ public class App
 			boolean index = !line.hasOption("no_index");
 			boolean array = !line.hasOption("no_array");
 			boolean prop = !line.hasOption("no_prop");
-			boolean noNew = line.hasOption("no_new_nodes");
+			boolean newNodes = !line.hasOption("no_new_nodes");
 			boolean allowMulti = line.hasOption("allow_multi");
 
 			List<String> inputFiles = line.getArgList();
 
-			PrimerConfigManager confMgr = null;
-			
 			if(config != null && !config.isEmpty()){
-				log.info("user-supplied config file available: ignoring config command line arguments");
-				confMgr = new PrimerConfigManager(config);
-			} else {
-				confMgr = new PrimerConfigManager(type,label,index,array,prop,noNew,allowMulti);
-
+				log.info("user-supplied config file used: " + config);
 			}
 			
+			PrimerConfigManager confMgr = new PrimerConfigManager(config,type,label,index,array,prop,newNodes,allowMulti);
+			confMgr.dumpConfig();
 			Primer p = new Primer(db,confMgr,inputFiles,extras);
 
 			try {
