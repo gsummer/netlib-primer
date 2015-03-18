@@ -42,8 +42,8 @@ public class PrimerConfigManager extends ConfigManager implements
 		getConfig().addProperty("is_label",isLabel);
 	}
 	
-	protected void setNoNewNodes(boolean NewNodes){
-		getConfig().addProperty("new_nodes", NewNodes);
+	protected void setNoNewNodes(boolean NoNewNodes){
+		getConfig().addProperty("new_nodes", !NoNewNodes);
 	}
 	
 	protected void setType(String type){
