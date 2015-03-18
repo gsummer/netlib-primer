@@ -81,6 +81,8 @@ public class PrimerConfigManager extends ConfigManager implements
 		return getConfig().getString("type");
 	}
 	
+	// used for testing currently
+	@Deprecated
 	public void dumpConfig(){
 		
 		Iterator<String> it = getConfig().getKeys();
