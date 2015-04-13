@@ -106,12 +106,14 @@ public class App
 			} catch (IOException e) {
 				System.err.println("parsing failed" + e.getMessage());
 				e.printStackTrace();
+				System.exit(-1);
 			}
 
 		}
 		catch( ParseException exp ) {
 			// oops, something went wrong
 			System.err.println( "Parsing failed.  Reason: " + exp.getMessage() );
+			System.exit(-1);
 		}
 	}
 }
