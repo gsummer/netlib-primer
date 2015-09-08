@@ -26,12 +26,10 @@ public class App
 	
 	public static void main( String[] args )
 	{
-
 		Options options = new Options();
 		Option help = OptionBuilder.withDescription("Help message").create("help");
 		Option dbop = OptionBuilder.withArgName("[URL]").hasArg().withDescription("Neo4j instance to prime").withLongOpt("target").withType(String.class).create("db");
 		Option typeop = OptionBuilder.withArgName("[TYPE]").hasArg().withDescription("Types available:").withType(String.class).create("t");
-		Option configOp = OptionBuilder.hasArg().withDescription("Alternative config file").withLongOpt("config").withType(String.class).create("c");
 		Option extraOps = OptionBuilder.hasArgs().withDescription("Extra configuration parameters for the import").withType(String.class).create("x");
 
 		Option noindexOps = new Option("no_index",false,"index the data");
@@ -40,11 +38,14 @@ public class App
 		Option nopropOps = new Option("no_prop",false,"values are not saved as properties (but as labels if <label> flag is set)");
 		Option nonewOps = new Option("no_new_nodes",false,"unknown primary ids will NOT create new nodes");
 		Option allowMultiOps = new Option("allow_multi",false, "allow for multiple nodes to be returned on searching");
-
+		
+		Option configOp = OptionBuilder.hasArg().withDescription("Alternative config file").withLongOpt("config").withType(String.class).create("c");
+		Option dictionaryOp = OptionBuilder.hasArg().withDescription("Dictionary file to use").withLongOpt("dictionary").withType(String.class).create("d");
+		
+		
 		options.addOption(help);
 		options.addOption(dbop);
 		options.addOption(typeop);
-		options.addOption(configOp);
 		options.addOption(extraOps);
 
 		options.addOption(noindexOps);
@@ -54,6 +55,10 @@ public class App
 		options.addOption(nonewOps);
 		options.addOption(allowMultiOps);
 
+		options.addOption(configOp);
+		options.addOption(dictionaryOp);
+		
+		
 		CommandLineParser parser = new GnuParser();
 		try {
 			CommandLine line = parser.parse( options, args );
@@ -72,6 +77,11 @@ public class App
 			String config = null;
 			if(line.hasOption("c")){
 				config = line.getOptionValue("c");
+			}
+			
+			String dictionary = null;
+			if(line.hasOption("d")){
+				dictionary = line.getOptionValue("d");
 			}
 
 			List<String> extras = null;
@@ -97,8 +107,8 @@ public class App
 				log.info("user-supplied config file used: " + config);
 			}
 			
-			PrimerConfigManager confMgr = new PrimerConfigManager(config,type,label,index,array,prop,newNodes,allowMulti);
-			confMgr.dumpConfig();
+			PrimerConfigManager confMgr = new PrimerConfigManager(config,dictionary,type,label,index,array,prop,newNodes,allowMulti);
+//			#confMgr.dumpConfig();
 			Primer p = new Primer(db,confMgr,inputFiles,extras);
 
 			try {

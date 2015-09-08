@@ -1,6 +1,6 @@
 package org.networklibrary.primer.parsing;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class DisgenetDiseaseParser extends FileBasedParser<IdData> {
 			String[] values =line.split("\\t",-1);
 			
 			res.add(new IdData(values[3], columns.get(3), values[3]));
-			res.add(new IdData(values[3], columns.get(4),values[4]));
+			res.add(new IdData(values[3], columns.get(4), values[4]));
 			
 		}
 		
@@ -46,9 +46,20 @@ public class DisgenetDiseaseParser extends FileBasedParser<IdData> {
 		return true;
 	}
 
+//	@Override
+//	protected void parseHeader(String header) {
+//		columns = Arrays.asList(header.split("\\t",-1));
+//	}
+	
 	@Override
-	protected void parseHeader(String header) {
-		columns = Arrays.asList(header.split("\\t",-1));
+	public void parseHeader(String header) {
+		columns = new ArrayList<String>();
+		
+		for(String colname : header.split("\\t",-1)){
+			columns.add(checkDictionary(colname));
+		}
+//		columns = Arrays.asList(header.split("\\t",-1));
+		
 	}
 
 }
