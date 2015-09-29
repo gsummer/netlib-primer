@@ -15,6 +15,7 @@ import org.networklibrary.core.storage.StorageEngine;
 import org.networklibrary.core.types.IdData;
 import org.networklibrary.primer.config.PrimerConfigManager;
 import org.networklibrary.primer.parsing.DisgenetDiseaseParser;
+import org.networklibrary.primer.parsing.MirbaseAliasParser;
 import org.networklibrary.primer.parsing.MirbaseParser;
 import org.networklibrary.primer.parsing.TabFileParser;
 import org.networklibrary.primer.storage.IdBundleStorageEngine;
@@ -28,6 +29,7 @@ public class Primer {
 		addParser("TAB","Tab file (default)",TabFileParser.class);
 		addParser("DGND","Disgenet Disease parser",DisgenetDiseaseParser.class);
 		addParser("MIRBASE", "MirBase miRNA.dat parser",MirbaseParser.class);
+		addParser("MIRBASEALIAS", "MirBase alias file", MirbaseAliasParser.class);
 	}
 
 	private static void addParser(String cmd, String name, Class parser){
