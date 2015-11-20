@@ -13,6 +13,7 @@ public class GmtIdParser extends FileBasedParser<IdData> {
 protected static final Logger log = Logger.getLogger(GmtIdParser.class.getName());
 	
 	protected int idcol = 0;
+	protected String idprefix = ""; // a fix for reactome...
 
 	@Override
 	public Collection<IdData> parse() throws ParsingErrorException {
@@ -26,7 +27,7 @@ protected static final Logger log = Logger.getLogger(GmtIdParser.class.getName()
 			
 			String[] col0 = values[0].split("%",-1);
 			
-			res.add(new IdData(col0[col0.length-1], "id", col0[col0.length-1]));
+			res.add(new IdData(col0[col0.length-1], "id", idprefix + col0[col0.length-1]));
 			res.add(new IdData(col0[col0.length-1], "name", values[1]));
 			res.add(new IdData(col0[col0.length-1], "source", col0[1]));
 			
@@ -52,6 +53,10 @@ protected static final Logger log = Logger.getLogger(GmtIdParser.class.getName()
 				switch(values[0]) {					
 				case "idcol":
 					idcol = Integer.valueOf(values[1]);
+					break;
+					
+				case "idprefix":
+					idprefix = values[1];
 					break;
 				}
 			}
