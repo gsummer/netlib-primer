@@ -40,6 +40,9 @@ public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 	protected void doStore(IdData curr) {
 		Set<Node> currNodes = getNode(curr.getMatchID(), getGraph());
 
+		if(currNodes == null) // multi hits; we are ignorning
+			return;
+		
 		if(currNodes.isEmpty() && getConfig().newNodes()){
 			Node currNode = getGraph().createNode();
 			currNodes.add(currNode);
@@ -80,10 +83,15 @@ public class IdBundleStorageEngine extends MultiTxStrategy<IdData> {
 				}
 				values.add(value);
 
-				String[] newvalues = new String[values.size()];
-				newvalues = values.toArray(newvalues);
+				if(values.size() == 1){
+					currNode.setProperty(propertyName, value);
+				} else {
+					String[] newvalues = new String[values.size()];
+					newvalues = values.toArray(newvalues);
 
-				currNode.setProperty(propertyName, newvalues);
+					currNode.setProperty(propertyName, newvalues);
+				}
+				
 			} else {
 				currNode.setProperty(propertyName, value);
 			}

@@ -7,7 +7,7 @@ import org.networklibrary.core.config.ConfigManager;
 public class PrimerConfigManager extends ConfigManager implements
 		PrimerSettings {
 	
-	public PrimerConfigManager(String runConfig, String type, boolean label, boolean index, boolean array,
+	public PrimerConfigManager(String runConfig, String dictionary, String type, boolean label, boolean index, boolean array,
 			boolean prop, boolean newNodes, boolean allowMulti) {
 		
 		setType(type);
@@ -18,7 +18,14 @@ public class PrimerConfigManager extends ConfigManager implements
 		setNewNodes(newNodes);
 		setAllowMulti(allowMulti);
 		
+		// the dictionary gets loaded through load
+		setDictionaryKey(dictionary);
+		
 		load(runConfig); // loads the default config.
+	}
+
+	private void setDictionaryKey(String dictionary) {
+		getConfig().addProperty(DICTIONARY_KEY, dictionary);
 	}
 
 	protected void setAllowMulti(boolean allowMulti) {
@@ -90,6 +97,15 @@ public class PrimerConfigManager extends ConfigManager implements
 		while(it.hasNext()){
 			String key = it.next();
 			System.out.println(key + " = " + getConfig().getProperty(key).toString());
+		}
+		
+		if(getConfig().containsKey(DICTIONARY_KEY)){
+			Iterator<String> dit = getDictionary().getKeys();
+			
+			while(dit.hasNext()){
+				String key = dit.next();
+				System.out.println("\td:" + key + " = " + getDictionary().getProperty(key).toString());
+			}
 		}
 	}
 

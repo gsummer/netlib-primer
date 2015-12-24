@@ -15,6 +15,9 @@ import org.networklibrary.core.storage.StorageEngine;
 import org.networklibrary.core.types.IdData;
 import org.networklibrary.primer.config.PrimerConfigManager;
 import org.networklibrary.primer.parsing.DisgenetDiseaseParser;
+import org.networklibrary.primer.parsing.GmtIdParser;
+import org.networklibrary.primer.parsing.MirbaseAliasParser;
+import org.networklibrary.primer.parsing.MirbaseParser;
 import org.networklibrary.primer.parsing.TabFileParser;
 import org.networklibrary.primer.storage.IdBundleStorageEngine;
 
@@ -26,6 +29,9 @@ public class Primer {
 	static {
 		addParser("TAB","Tab file (default)",TabFileParser.class);
 		addParser("DGND","Disgenet Disease parser",DisgenetDiseaseParser.class);
+		addParser("MIRBASE", "MirBase miRNA.dat parser",MirbaseParser.class);
+		addParser("MIRBASEALIAS", "MirBase alias file", MirbaseAliasParser.class);
+		addParser("GMTID", "Extract ids from GMT files", GmtIdParser.class);
 	}
 
 	private static void addParser(String cmd, String name, Class parser){
@@ -64,7 +70,7 @@ public class Primer {
 					p.takeExtraParameters(extras);
 
 				p.setDataSource(inputFile);
-
+				
 				while(p.ready()){
 					se.storeAll(p.parse());
 				}
@@ -106,6 +112,7 @@ public class Primer {
 		try {
 			log.info("Have type = " + getType() + " -> parser = " + parsers.get(getType()));		
 			p = (Parser<IdData>)getParsers().get(getType()).newInstance();
+			p.setDictionary(confMgr);
 		} catch (InstantiationException e) {
 			log.severe("InstantiationException when creating parser for: " + getType() + ": " + e.getMessage());
 		} catch (IllegalAccessException e) {
