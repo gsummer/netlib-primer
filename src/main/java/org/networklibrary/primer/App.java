@@ -39,7 +39,6 @@ public class App
 		Option nonewOps = new Option("no_new_nodes",false,"unknown primary ids will NOT create new nodes");
 		Option allowMultiOps = new Option("allow_multi",false, "allow for multiple nodes to be returned on searching");
 		
-		Option configOp = OptionBuilder.hasArg().withDescription("Alternative config file").withLongOpt("config").withType(String.class).create("c");
 		Option dictionaryOp = OptionBuilder.hasArg().withDescription("Dictionary file to use").withLongOpt("dictionary").withType(String.class).create("d");
 		
 		
@@ -55,7 +54,6 @@ public class App
 		options.addOption(nonewOps);
 		options.addOption(allowMultiOps);
 
-		options.addOption(configOp);
 		options.addOption(dictionaryOp);
 		
 		
@@ -72,11 +70,6 @@ public class App
 			String db = null;
 			if(line.hasOption("db")){
 				db = line.getOptionValue("db");
-			}
-
-			String config = null;
-			if(line.hasOption("c")){
-				config = line.getOptionValue("c");
 			}
 			
 			String dictionary = null;
@@ -102,12 +95,8 @@ public class App
 			boolean allowMulti = line.hasOption("allow_multi");
 
 			List<String> inputFiles = line.getArgList();
-
-			if(config != null && !config.isEmpty()){
-				log.info("user-supplied config file used: " + config);
-			}
 			
-			PrimerConfigManager confMgr = new PrimerConfigManager(config,dictionary,type,label,index,array,prop,newNodes,allowMulti);
+			PrimerConfigManager confMgr = new PrimerConfigManager(dictionary,type,label,index,array,prop,newNodes,allowMulti);
 //			#confMgr.dumpConfig();
 			Primer p = new Primer(db,confMgr,inputFiles,extras);
 

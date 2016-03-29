@@ -7,7 +7,7 @@ import org.networklibrary.core.config.ConfigManager;
 public class PrimerConfigManager extends ConfigManager implements
 		PrimerSettings {
 	
-	public PrimerConfigManager(String runConfig, String dictionary, String type, boolean label, boolean index, boolean array,
+	public PrimerConfigManager(String dictionary, String type, boolean label, boolean index, boolean array,
 			boolean prop, boolean newNodes, boolean allowMulti) {
 		
 		setType(type);
@@ -21,7 +21,7 @@ public class PrimerConfigManager extends ConfigManager implements
 		// the dictionary gets loaded through load
 		setDictionaryKey(dictionary);
 		
-		load(runConfig); // loads the default config.
+		load(null);
 	}
 
 	private void setDictionaryKey(String dictionary) {
