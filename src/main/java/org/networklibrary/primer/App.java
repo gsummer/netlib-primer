@@ -30,7 +30,7 @@ public class App
 		Option help = OptionBuilder.withDescription("Help message").create("help");
 		Option dbop = OptionBuilder.withArgName("[URL]").hasArg().withDescription("Neo4j instance to prime").withLongOpt("target").withType(String.class).create("db");
 		Option typeop = OptionBuilder.withArgName("[TYPE]").hasArg().withDescription("Types available:").withType(String.class).create("t");
-		Option extraOps = OptionBuilder.hasArgs().withDescription("Extra configuration parameters for the import").withType(String.class).create("x");
+		Option extraOps = OptionBuilder.hasArg().withDescription("Extra configuration parameters for the import").withType(String.class).create("x");
 
 		Option noindexOps = new Option("no_index",false,"index the data");
 		Option noarrayOps = new Option("no_array",false,"enforces that no arrays are used as property values");
