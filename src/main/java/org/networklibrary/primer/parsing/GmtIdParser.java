@@ -16,7 +16,7 @@ public class GmtIdParser extends FileBasedParser<IdData> {
 	protected String idprefix = ""; // a fix for reactome..
 	protected String format = "broad";
 	protected String source = "unknown";
-	protected String filterOrganism = "unknown";
+	protected String filterOrganism = null;
 
 	@Override
 	public Collection<IdData> parse() throws ParsingErrorException {
@@ -35,21 +35,6 @@ public class GmtIdParser extends FileBasedParser<IdData> {
 			res = parseWP(line);
 			break;
 		}
-
-		//		
-		//		if(line != null && !line.isEmpty()){
-		//			res = new LinkedList<IdData>();
-		//			
-		//			String[] values = line.split("\\t",-1);
-		//			
-		//			String[] col0 = values[0].split("%",-1);
-		//			
-		//			res.add(new IdData(col0[col0.length-1], "id", idprefix + col0[col0.length-1]));
-		//			res.add(new IdData(col0[col0.length-1], "name", values[1]));
-		//			res.add(new IdData(col0[col0.length-1], "source", col0[1]));
-		//			
-		//			System.out.println(col0[col0.length-1] + " -> name = " + values[1]);
-		//		}
 
 		return res;
 	}
@@ -93,7 +78,7 @@ public class GmtIdParser extends FileBasedParser<IdData> {
 			
 			System.out.println(id + " -> " + name);
 
-			if(organism.equalsIgnoreCase(filterOrganism)){
+			if(filterOrganism == null || organism.equalsIgnoreCase(filterOrganism)){
 
 				res.add(new IdData(id, checkDictionary("id"), id));
 				res.add(new IdData(id, checkDictionary("name"), name));
