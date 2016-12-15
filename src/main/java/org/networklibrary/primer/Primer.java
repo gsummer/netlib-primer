@@ -54,11 +54,18 @@ public class Primer {
 
 	public void prime() throws IOException {
 
-		GraphDatabaseService g = new GraphDatabaseFactory().newEmbeddedDatabase(db);
+		log.info("connecting to db: " + getDb());
+		
+		if(getDb() == null || getDb().isEmpty()){
+			log.severe("no db supplied!");
+			return;
+		}
+		
+		GraphDatabaseService g = new GraphDatabaseFactory().newEmbeddedDatabase(getDb());
 
 		StorageEngine<IdData> se = new IdBundleStorageEngine(g,confMgr);
 
-		log.info("connecting to db: " + getDb());
+		
 
 		// files can be handled multithreaded?
 		for(String inputFile : inputFiles){

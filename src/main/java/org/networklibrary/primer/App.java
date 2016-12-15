@@ -97,7 +97,6 @@ public class App
 			List<String> inputFiles = line.getArgList();
 			
 			PrimerConfigManager confMgr = new PrimerConfigManager(dictionary,type,label,index,array,prop,newNodes,allowMulti);
-//			#confMgr.dumpConfig();
 			Primer p = new Primer(db,confMgr,inputFiles,extras);
 
 			try {
@@ -109,7 +108,6 @@ public class App
 
 		}
 		catch( ParseException exp ) {
-			// oops, something went wrong
 			System.err.println( "Parsing failed.  Reason: " + exp.getMessage() );
 		}
 	}
