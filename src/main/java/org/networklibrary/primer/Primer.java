@@ -1,5 +1,6 @@
 package org.networklibrary.primer;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +62,7 @@ public class Primer {
 			return;
 		}
 		
-		GraphDatabaseService g = new GraphDatabaseFactory().newEmbeddedDatabase(getDb());
+		GraphDatabaseService g = new GraphDatabaseFactory().newEmbeddedDatabase(new File(getDb()));
 
 		StorageEngine<IdData> se = new IdBundleStorageEngine(g,confMgr);
 
