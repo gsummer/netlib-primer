@@ -45,11 +45,6 @@ public class DisgenetDiseaseParser extends FileBasedParser<IdData> {
 	protected boolean hasHeader() {
 		return true;
 	}
-
-//	@Override
-//	protected void parseHeader(String header) {
-//		columns = Arrays.asList(header.split("\\t",-1));
-//	}
 	
 	@Override
 	public void parseHeader(String header) {
@@ -58,7 +53,6 @@ public class DisgenetDiseaseParser extends FileBasedParser<IdData> {
 		for(String colname : header.split("\\t",-1)){
 			columns.add(checkDictionary(colname));
 		}
-//		columns = Arrays.asList(header.split("\\t",-1));
 		
 	}
 

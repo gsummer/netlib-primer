@@ -59,7 +59,7 @@ public class TabFileParser extends FileBasedParser<IdData> {
 		
 		for(String v : values){
 			if(v != null && !v.isEmpty()){
-				res.add(new IdData(matchID,propertyName,v));
+				res.add(new IdData(matchID,propertyName,v.trim()));
 			}
 		}
 		

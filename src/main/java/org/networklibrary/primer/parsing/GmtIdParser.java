@@ -24,7 +24,7 @@ public class GmtIdParser extends FileBasedParser<IdData> {
 		String line = readLine();
 		List<IdData> res = null;
 		
-		System.out.println("format = " + format);
+//		System.out.println("format = " + format);
 		
 		switch(format.toLowerCase()) {
 		case "broad":
@@ -76,7 +76,7 @@ public class GmtIdParser extends FileBasedParser<IdData> {
 
 			String url = values[1];
 			
-			System.out.println(id + " -> " + name);
+//			System.out.println(id + " -> " + name);
 
 			if(filterOrganism == null || organism.equalsIgnoreCase(filterOrganism)){
 
